@@ -1,0 +1,11 @@
+{
+  "name": "location-pipeline",
+  "dependencies": {
+    "straw": "^0.3.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timfpark/location-pipeline.git"
+  },
+  "license": "MIT"
+}

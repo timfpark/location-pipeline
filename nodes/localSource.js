@@ -1,11 +1,10 @@
 var fs = require('fs')
-  , lineReader = require('line-reader')
+  , byline = require('byline')
+  , rs = process.stdin
   , straw = require('straw');
 
 module.exports = straw.node({
     timer: null,
-    currentIndex: 0,
-    lines: [],
     opts: {
         interval: 1
     },
@@ -15,30 +14,24 @@ module.exports = straw.node({
         done();
     },
 
-    sendLocation: function() {
-        if (this.currentIndex >= this.lines.length) return;
-
-        var line = this.lines[this.currentIndex++];
-        var fields = line.split(',');
-
-        var ts = parseFloat(fields[0]);
-        var latitude = parseFloat(fields[1]);
-        var longitude = parseFloat(fields[2]);
-
-        this.output({
-            'ts': ts,
-            'latitude': latitude,
-            'longitude': longitude
-        });
-    },
-
     start: function(done) {
-        var fileContents = fs.readFileSync('location.csv', 'utf8');
+        var self = this;
 
-        this.lines = fileContents.split('\r');
-        console.log('lines: ' + this.lines.length);
+        var stream = byline(fs.createReadStream('location.csv', { encoding: 'utf8' }))
 
-        this.timer = setInterval(this.sendLocation.bind(this), 1);
+        stream.on('data', function(line) {
+            var fields = line.split(',');
+
+            var ts = parseFloat(fields[0]);
+            var latitude = parseFloat(fields[1]);
+            var longitude = parseFloat(fields[2]);
+
+            self.output({
+                'ts': ts,
+                'latitude': latitude,
+                'longitude': longitude
+            });
+        });
 
         done();
     },

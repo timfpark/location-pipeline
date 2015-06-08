@@ -21,6 +21,10 @@ module.exports = straw.node({
             if (lastLocation) {
 	        	lastLocation = JSON.parse(lastLocation);
                 lastLocation.duration = currentLocation.ts - lastLocation.ts;
+
+                // if we have out of order messages don't emit negative duration.
+                if (lastLocation.duration < 0)
+                	lastLocation = null;
             }
 
             self.redisClient.set(self.buildLastLocationKey(currentLocation), JSON.stringify(currentLocation), function(err) {

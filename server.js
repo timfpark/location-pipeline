@@ -16,9 +16,14 @@ topo.add([{
 	node: 'localSource',
 	output:'locations'
 }, {
+    id: 'locationDuration',
+    node: 'locationDuration',
+    input: 'locations',
+    output: 'locationDurations'
+}, {
     id: 'tileLabeler',
     node: 'tileLabeler',
-    input: 'locations',
+    input: 'locationDurations',
     output: 'tileLabels'
 }, {
     id: 'print',
@@ -26,7 +31,6 @@ topo.add([{
     input: 'tileLabels'
 }], function(){
     topo.start({
-        purge: true
     });
 });
 

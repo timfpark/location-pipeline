@@ -1,6 +1,7 @@
 {
   "name": "location-pipeline",
   "dependencies": {
+    "redis": "^0.12.1",
     "straw": "^0.3.2"
   },
   "repository": {

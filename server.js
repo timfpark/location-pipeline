@@ -19,16 +19,21 @@ topo.add([{
     id: 'locationDuration',
     node: 'locationDuration',
     input: 'locations',
-    output: 'locationDurations'
+    output: 'locationDuration'
 }, {
     id: 'tileLabeler',
     node: 'tileLabeler',
-    input: 'locationDurations',
+    input: 'locationDuration',
     output: 'tileLabels'
+}, {
+    id: 'tileTotalDuration',
+    node: 'tileTotalDuration',
+    input: 'tileLabels',
+    output: 'tileTotalDuration'
 }, {
     id: 'print',
     node: 'print',
-    input: 'tileLabels'
+    input: 'tileTotalDuration'
 }], function(){
     topo.start({
     });

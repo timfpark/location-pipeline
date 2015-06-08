@@ -13,7 +13,7 @@ module.exports = straw.node({
             var fields = line.split(',');
 
             var location = {
-                principalId: '0',
+                principalId: '1',
                 ts: parseFloat(fields[0]),
                 latitude: parseFloat(fields[1]),
                 longitude: parseFloat(fields[2])

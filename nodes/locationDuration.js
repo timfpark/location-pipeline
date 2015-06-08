@@ -1,35 +1,36 @@
-var redis = require('redis')
-  , straw = require('straw')
+var straw = require('straw');
 
 module.exports = straw.node({
     initialize: function(opts, done) {
         this.opts = opts;
-
-        this.redisClient = redis.createClient();
-
         done();
     },
 
     buildLastLocationKey: function(location) {
-    	return "lastLocation." + location.principalId;
+        return "lastLocation." + location.principalId;
     },
 
     process: function(currentLocation, done) {
-    	var self = this;
+        var self = this;
 
-        this.redisClient.get(this.buildLastLocationKey(currentLocation), function(err, lastLocation) {
+        this.opts.redis.client.get(this.buildLastLocationKey(currentLocation), function(err, lastLocation) {
+            if (err) return done(new Error(err));
+
             if (lastLocation) {
-	        	lastLocation = JSON.parse(lastLocation);
+                lastLocation = JSON.parse(lastLocation);
                 lastLocation.duration = currentLocation.ts - lastLocation.ts;
 
                 // if we have out of order messages don't emit negative duration.
-                if (lastLocation.duration < 0)
-                	lastLocation = null;
+                if (lastLocation.duration < 0) lastLocation = null;
             }
 
-            self.redisClient.set(self.buildLastLocationKey(currentLocation), JSON.stringify(currentLocation), function(err) {
-                if (lastLocation) self.output(lastLocation);
-    			done();
+            self.opts.redis.client.set(self.buildLastLocationKey(currentLocation), JSON.stringify(currentLocation), function(err) {
+                if (err) return done(new Error(err));
+
+                if (lastLocation)
+                    self.output(lastLocation, done);
+                else
+                    done();
             });
         });
 

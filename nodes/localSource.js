@@ -7,22 +7,26 @@ module.exports = straw.node({
     start: function(done) {
         var self = this;
 
-        var stream = byline(fs.createReadStream('location.csv', { encoding: 'utf8' }))
+        this.opts.redis.client.flushdb(function(err) {
+            if (err) return done(err);
 
-        stream.on('data', function(line) {
-            var fields = line.split(',');
+            var stream = byline(fs.createReadStream('location.csv', { encoding: 'utf8' }))
 
-            var location = {
-                principalId: '1',
-                ts: parseFloat(fields[0]),
-                latitude: parseFloat(fields[1]),
-                longitude: parseFloat(fields[2])
-            };
+            stream.on('data', function(line) {
+                var fields = line.split(',');
 
-            self.output(location);
+                var location = {
+                    principalId: '1',
+                    ts: parseFloat(fields[0]),
+                    latitude: parseFloat(fields[1]),
+                    longitude: parseFloat(fields[2])
+                };
+
+                self.output(location);
+            });
+
+            done();
         });
-
-        done();
     },
 
     stop: function(done) {

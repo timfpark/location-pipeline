@@ -11,32 +11,15 @@ var opts = {
 };
 
 var topo = straw.create(opts);
-topo.add([{
-    id: 'localSource',
-	node: 'localSource',
-	output:'locations'
-}, {
-    id: 'locationDuration',
-    node: 'locationDuration',
-    input: 'locations',
-    output: 'locationDuration'
-}, {
-    id: 'tileLabeler',
-    node: 'tileLabeler',
-    input: 'locationDuration',
-    output: 'tileLabels'
-}, {
-    id: 'tileTotalDuration',
-    node: 'tileTotalDuration',
-    input: 'tileLabels',
-    output: 'tileTotalDuration'
-}, {
-    id: 'print',
-    node: 'print',
-    input: 'tileTotalDuration'
-}], function(){
-    topo.start({
-    });
+topo.add([
+    { id: 'localSource',       node: 'localSource',                                   output: 'locations' },
+    { id: 'locationDuration',  node: 'locationDuration',  input: 'locations',         output: 'locationDuration' },
+    { id: 'tileLabeler',       node: 'tileLabeler',       input: 'locationDuration',  output: 'tileLabels' },
+    { id: 'tileTotalDuration', node: 'tileTotalDuration', input: 'tileLabels',        output: 'tileTotalDuration' },
+    { id: 'tileScorer',        node: 'tileScorer',        input: 'tileTotalDuration', output: 'tileScorer' },
+    { id: 'politicalScorer',   node: 'politicalScorer',   input: 'tileScorer',        output: 'politicalScorer' }
+], function(){
+    topo.start({});
 });
 
 process.on('SIGINT', function() {

@@ -1,6 +1,10 @@
 {
   "name": "location-pipeline",
   "dependencies": {
+    "async": "^1.2.1",
+    "geotile": "^0.1.1",
+    "request": "^2.57.0",
+    "sbus-amqp10": "^0.1.2",
     "straw": "^0.3.2"
   },
   "repository": {

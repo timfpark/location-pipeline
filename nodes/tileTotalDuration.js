@@ -1,6 +1,8 @@
-var straw = require('straw');
+var async = require('async')
+  , straw = require('straw');
 
-var GLOBAL_DURATION = "0";
+var GLOBAL_DURATION = "GLOBAL";
+var GLOBAL_TOTAL_DURATION = "tileTotalDuration.GLOBAL";
 
 module.exports = straw.node({
     initialize: function(opts, done) {
@@ -13,21 +15,34 @@ module.exports = straw.node({
     },
 
     process: function(location, done) {
-    	var self = this;
+        var self = this;
+        var intDuration = Math.round(location.duration);
 
-		var intDuration = Math.round(location.duration);
+        self.opts.redis.client.incrby(GLOBAL_TOTAL_DURATION, intDuration, function(err, globalOverall) {
+            if (err) return callback(new Error(err));
 
-    	this.opts.redis.client.incrby(this.buildTotalDurationKey(location.tileId, GLOBAL_DURATION), intDuration, function(err, globalValue) {
-    		if (err) return done(new Error(err));
+            location.globalDuration = globalOverall;
 
-	    	self.opts.redis.client.incrby(self.buildTotalDurationKey(location.tileId, location.principalId), intDuration, function(err, principalValue) {
-	    		if (err) return done(new Error(err));
+            async.each(Object.keys(location.tiles), function(zoom, callback) {
+                var tile = location.tiles[zoom];
 
-	    		location.globalTotalDuration = globalValue;
-	    		location.principalTotalDuration = principalValue;
+                self.opts.redis.client.incrby(self.buildTotalDurationKey(tile.tile_id, GLOBAL_DURATION), intDuration, function(err, globalValue) {
+                    if (err) return callback(new Error(err));
 
-		        self.output(location, done);
-		    });
-    	});
+                    self.opts.redis.client.incrby(self.buildTotalDurationKey(tile.tile_id, location.principalId), intDuration, function(err, principalValue) {
+                        if (err) return callback(new Error(err));
+
+                        tile.globalDuration = globalValue;
+                        tile.principalDuration = principalValue;
+
+                        return callback();
+                    });
+                });
+            }, function(err) {
+                if (err) return callback(new Error(err));
+
+                self.output(location, done);
+            });
+        });
     }
 });

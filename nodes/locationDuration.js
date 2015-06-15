@@ -18,7 +18,7 @@ module.exports = straw.node({
 
             if (lastLocation) {
                 lastLocation = JSON.parse(lastLocation);
-                lastLocation.duration = currentLocation.ts - lastLocation.ts;
+                lastLocation.duration = (currentLocation.ts - lastLocation.ts) / 1000.0;
 
                 // if we have out of order messages don't emit negative duration.
                 if (lastLocation.duration < 0) lastLocation = null;
@@ -33,6 +33,5 @@ module.exports = straw.node({
                     done();
             });
         });
-
     }
 });
